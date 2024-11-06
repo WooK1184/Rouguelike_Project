@@ -63,6 +63,12 @@ class Monster {
                 break;
         }
     }
+    levelUp() {
+        // 레벨업 시 능력치 증가
+        this.hp += 10; // 체력 증가
+        this.attackPower += 5; // 공격력 증가
+        console.log(chalk.blue(`플레이어의 능력치가 증가했습니다! HP: ${this.hp}, 공격력: ${this.attackPower}`));
+    }
 }
 
 function displayStatus(stage, player, monster) {
