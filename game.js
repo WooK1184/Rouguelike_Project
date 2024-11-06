@@ -6,30 +6,30 @@ class Player {
         this.hp = 100;
         //this.attackSucces = 0.7 차후 게임 난이도 쉬울 경우 기본 베기도 확률 추가
         this.attackPower = 10;
-        this.powerAttackSucces = 0.3
-        this.healsucces = 0.5
+        this.powerAttackSuccess = 0.3
+        this.healsuccess = 0.5
     }
 
     attack(tree, choice) {
         let success = false;
         switch (choice) {
             case '1': // 기본 베기
-                console.log(chalk.green("플레이어가 기본 공격을 사용했습니다!"));
+                console.log(chalk.green("플레이어가 베기를 사용했습니다!"));
                 tree.hp -= this.attackPower;
                 console.log(`나무가 ${this.attackPower}만큼 베어졌습니다. 나무의 HP: ${tree.hp}`);
                 break;
             case '2': // 톱질 하기
-                success = Math.random() < this.powerAttackSucces;
+                success = Math.random() < this.powerAttackSuccess;
                 if (success) {
-                    console.log(chalk.green("플레이어가 강력한 공격을 성공했습니다!"));
+                    console.log(chalk.green("플레이어가 톱질을 성공했습니다!"));
                     tree.hp -= this.attackPower * 2
                     console.log(`나무가 ${this.attackPower * 2}만큼 베어졌습니다. 나무의 HP: ${tree.hp}`);
                 } else {
-                    console.log(chalk.yellow("플레이어의 강력한 공격이 실패했습니다."));
+                    console.log(chalk.yellow("플레이어의 톱질이 실패했습니다."));
                 }
                 break;
             case '3': // 체력 회복 (30% 성공)
-                success = Math.random() < this.healsucces;
+                success = Math.random() < this.healsuccess;
                 if (success) {
                     console.log(chalk.green("플레이어가 체력을 회복했습니다!"));
                     this.hp += 15;
@@ -49,9 +49,9 @@ class Player {
         // 레벨업 시 능력치 증가
         this.hp += 10; // 체력 증가
         this.attackPower += 5; //베기 파워 증가
-        //this.attackSucces += 0.05; //추후 베기 확률 증가 추가 가능
-        this.powerAttackSucces += 0.05
-        this.healsucces += 0.03
+        //this.attackSuccess += 0.05; //추후 베기 확률 증가 추가 가능
+        this.powerAttackSuccess = Math.min(this.powerAttackSuccess + 0.05, 1)
+        this.healsuccess = Math.min(this.healsuccess + 0.03, 1)
         console.log(chalk.blue(`플레이어의 능력치가 증가했습니다! HP: ${this.hp}, 벌목 파워: ${this.attackPower}`));
     }
 }
@@ -59,6 +59,7 @@ class Player {
 class Tree {
     constructor() {
         this.hp = 100;
+        this.attackPower = 5
     }
 
     attack(player) {
@@ -104,7 +105,7 @@ const battle = async (stage, player, tree) => {
         logs.forEach((log) => console.log(log));
 
         console.log(
-            chalk.green(`\n1. 베기  2. 톱질하기  3. 체력 회복  4. 포기하기`)
+            chalk.green(`\n1. 베기  2. 톱질하기(${player.powerAttackSuccess * 100}%)  3. 체력 회복(${player.healsuccess * 100}%)  4. 포기하기`)
         );
         const choice = readlineSync.question('당신의 선택은? ');
 
