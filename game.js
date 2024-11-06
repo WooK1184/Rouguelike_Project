@@ -6,25 +6,36 @@ class Player {
         this.hp = 100;
         this.maxHp = 100;
         //this.attackSucces = 0.7 차후 게임 난이도 쉬울 경우 기본 베기도 확률 추가
-        this.attackPower = 10;
+        this.attackPowerMin = 8;
+        this.attackPowerMax = 12;
         this.powerAttackSuccess = 0.3;
         this.healsuccess = 0.5;
     }
 
+    randomAttackPower() {
+        // 최소와 최대 공격력 사이의 랜덤 값 반환
+        return Math.floor(
+            Math.random() * (this.attackPowerMax - this.attackPowerMin + 1) + this.attackPowerMin);
+    }
+
     attack(tree, choice) {
         let success = false;
+        let attackPower = this.randomAttackPower();
         switch (choice) {
             case '1': // 기본 베기
                 console.log(chalk.green("플레이어가 베기를 사용했습니다!"));
-                tree.hp -= this.attackPower;
-                console.log(`나무가 ${this.attackPower}만큼 베어졌습니다. 나무의 HP: ${tree.hp}`);
+                tree.hp -= attackPower;
+                if (tree.hp < 0) {
+                    tree.hp = 0;
+                }
+                console.log(`나무가 ${attackPower}만큼 베어졌습니다. 나무의 HP: ${tree.hp}`);
                 break;
             case '2': // 톱질 하기
                 success = Math.random() < this.powerAttackSuccess;
                 if (success) {
                     console.log(chalk.green("플레이어가 톱질을 성공했습니다!"));
-                    tree.hp -= this.attackPower * 2
-                    console.log(`나무가 ${this.attackPower * 2}만큼 베어졌습니다. 나무의 HP: ${tree.hp}`);
+                    tree.hp -= attackPower * 2
+                    console.log(`나무가 ${attackPower * 2}만큼 베어졌습니다. 나무의 HP: ${tree.hp}`);
                 } else {
                     console.log(chalk.yellow("플레이어의 톱질이 실패했습니다."));
                 }
@@ -43,7 +54,7 @@ class Player {
             default:
                 console.log(chalk.yellow("잘못된 선택입니다. 기본 공격을 사용합니다."));
                 tree.hp -= 10;
-                console.log(`나무가 ${this.attackPower}만큼 베어졌습니다. 나무의 HP: ${tree.hp}`);
+                console.log(`나무가 ${attackPower}만큼 베어졌습니다. 나무의 HP: ${tree.hp}`);
                 break;
         }
     }
@@ -51,14 +62,18 @@ class Player {
         // 레벨업 시 능력치 증가
         this.maxHp += 15; // 체력 증가
         this.resetPlayerHpAfterStage();
-        this.attackPower += 5; //베기 파워 증가
+        this.PlayerAttackPowerAfterStage(); //베기 파워 증가
         //this.attackSuccess += 0.05; //추후 베기 확률 증가 추가 가능
         this.powerAttackSuccess = Math.min(this.powerAttackSuccess + 0.05, 1)
         this.healsuccess = Math.min(this.healsuccess + 0.03, 1)
-        console.log(chalk.blue(`플레이어의 능력치가 증가했습니다! HP: ${this.hp}, 벌목 파워: ${this.attackPower}`));
+        console.log(chalk.blue(`플레이어의 능력치가 증가했습니다! HP: ${this.hp}, 벌목 파워: ${this.attackPowerMin} - ${this.attackPowerMax}`));
     }
     resetPlayerHpAfterStage() {
         this.hp = this.maxHp;
+    }
+    PlayerAttackPowerAfterStage() {
+        this.attackPowerMin += 5
+        this.attackPowerMax += 5
     }
 }
 
