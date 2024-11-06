@@ -79,8 +79,8 @@ class Tree {
     }
     levelUp(stage) {
         // 스테이지 클리어 시 나무의 크기 증가
-        this.hp += 20 + stage * 5;
-        this.attackPower += 5 + stage;
+        this.hp += (20 + stage * 5);
+        this.attackPower += (5 + stage);
         console.log(chalk.red(`나무의 크기가 증가했습니다. HP: ${this.hp}, 벌목 시 감소 HP: ${this.attackPower}`));
     }
 }
@@ -95,7 +95,7 @@ function displayStatus(stage, player, tree) {
     console.log(chalk.magentaBright(`=====================\n`));
 }
 
-const battle = async (stage, player, tree) => {
+const battle = (stage, player, tree) => {
     let logs = [];
 
     while (player.hp > 0 && tree.hp > 0) {
@@ -108,10 +108,10 @@ const battle = async (stage, player, tree) => {
             chalk.green(`\n1. 베기  2. 톱질하기(${player.powerAttackSuccess * 100}%)  3. 체력 회복(${player.healsuccess * 100}%)  4. 포기하기`)
         );
         const choice = readlineSync.question('당신의 선택은? ');
-
+        
         if (choice === '4') {
             console.log(chalk.yellow("플레이어가 포기를 선택했습니다. 벌목이 종료됩니다."));
-            break;
+            return 'reset';
         }
 
         // 플레이어의 벌목 수행
@@ -131,25 +131,48 @@ const battle = async (stage, player, tree) => {
             console.log(chalk.green("나무가 베어졌습니다!"));
             break;
         }
+
+        readlineSync.question('다음을 선택해주세요.');
     }
+
+    return 'continue';
 };
 
 export async function startGame() {
-    console.clear();
-    const player = new Player();
-    let stage = 1;
+    let playAgain = true;
 
-    while (stage <= 10) {
-        const tree = new Tree();
-        await battle(stage, player, tree);
+    while (playAgain) {
+        console.clear();
+        const player = new Player();
+        let stage = 1;
 
-        // 스테이지 클리어 및 게임 종료 조건
-        if (player.hp <= 0) {
-            console.log(chalk.red("게임 종료: 플레이어가 쓰러졌습니다."));
-            break;
+        while (stage <= 10) {
+            const tree = new Tree();
+
+            // battle 함수에서 반환값 처리
+            const result = battle(stage, player, tree);
+
+            if (result === 'reset') {
+                // 게임을 처음부터 다시 시작하도록 설정
+                console.clear();
+                console.log(chalk.green("게임이 처음부터 다시 시작됩니다."));
+                break; // 처음부터 다시 시작
+            }
+
+            // 스테이지 클리어 및 게임 종료 조건
+            if (player.hp <= 0) {
+                console.log(chalk.red("게임 종료: 플레이어가 쓰러졌습니다."));
+                break;
+            }
+
+            console.log(chalk.green(`스테이지 ${stage}를 클리어했습니다! 다음 스테이지로 진행합니다.`));
+            stage++;
         }
 
-        console.log(chalk.green(`스테이지 ${stage}를 클리어했습니다! 다음 스테이지로 진행합니다.`));
-        stage++;
+        console.log(chalk.green("게임이 종료되었습니다."));
+        const restart = readlineSync.question("게임을 다시 시작하시겠습니까? (y/n): ");
+        if (restart.toLowerCase() !== 'y') {
+            playAgain = false;
+        }
     }
 }
