@@ -4,18 +4,22 @@ import readlineSync from 'readline-sync';
 class Player {
     constructor() {
         this.hp = 100;
+        //this.attackSucces = 0.7 차후 게임 난이도 쉬울 경우 기본 베기도 확률 추가
+        this.attackPower = 10;
+        this.powerAttackSucces = 0.3
+        this.healsucces = 0.5
     }
 
     attack(tree, choice) {
         let success = false;
         switch (choice) {
-            case '1': // 기본 공격
+            case '1': // 기본 베기
                 console.log(chalk.green("플레이어가 기본 공격을 사용했습니다!"));
                 tree.hp -= this.attackPower;
                 console.log(`나무가 ${this.attackPower}만큼 베어졌습니다. 나무의 HP: ${tree.hp}`);
                 break;
-            case '2': // 강력한 공격 (50% 성공 확률)
-                success = Math.random() < 0.5;
+            case '2': // 톱질 하기
+                success = Math.random() < this.powerAttackSucces;
                 if (success) {
                     console.log(chalk.green("플레이어가 강력한 공격을 성공했습니다!"));
                     tree.hp -= this.attackPower * 2
@@ -25,7 +29,7 @@ class Player {
                 }
                 break;
             case '3': // 체력 회복 (30% 성공)
-                success = Math.random() < 0.3;
+                success = Math.random() < this.healsucces;
                 if (success) {
                     console.log(chalk.green("플레이어가 체력을 회복했습니다!"));
                     this.hp += 15;
@@ -44,8 +48,11 @@ class Player {
     levelUp() {
         // 레벨업 시 능력치 증가
         this.hp += 10; // 체력 증가
-        this.attackPower += 5; // 공격력 증가
-        console.log(chalk.blue(`플레이어의 능력치가 증가했습니다! HP: ${this.hp}, 공격력: ${this.attackPower}`));
+        this.attackPower += 5; //베기 파워 증가
+        //this.attackSucces += 0.05; //추후 베기 확률 증가 추가 가능
+        this.powerAttackSucces += 0.05
+        this.healsucces += 0.03
+        console.log(chalk.blue(`플레이어의 능력치가 증가했습니다! HP: ${this.hp}, 벌목 파워: ${this.attackPower}`));
     }
 }
 
@@ -57,12 +64,12 @@ class Tree {
     attack(player) {
         const attackType = Math.floor(Math.random() * 2);
         switch (attackType) {
-            case 0: // 기본 공격
+            case 0: // 기본 체력 감소
                 console.log(chalk.red("플레이어의 체력이 감소했습니다."));
                 player.hp -= this.attackPower;
                 console.log(`플레이어의 체력이 ${this.attackPower}만큼 감소했습니다. 플레이어의 HP: ${player.hp}`);
                 break;
-            case 1: // 강력한 공격
+            case 1: // 급격한 체력 감소
                 console.log(chalk.red("플레이어의 체력이 크게 감소했습니다."));
                 player.hp -= this.attackPower * 2;
                 console.log(`플레이어의 체력이 ${this.attackPower * 2}만큼 감소했습니다. 플레이어의 HP: ${player.hp}`);
@@ -102,25 +109,25 @@ const battle = async (stage, player, tree) => {
         const choice = readlineSync.question('당신의 선택은? ');
 
         if (choice === '4') {
-            console.log(chalk.yellow("플레이어가 포기를 선택했습니다. 전투가 종료됩니다."));
+            console.log(chalk.yellow("플레이어가 포기를 선택했습니다. 벌목이 종료됩니다."));
             break;
         }
 
-        // 플레이어의 공격 수행
+        // 플레이어의 벌목 수행
         logs.push(chalk.green(`플레이어가 ${choice}번을 선택했습니다.`));
         player.attack(tree, choice);
 
-        // 몬스터의 공격 수행 (몬스터가 살아있는 경우에만)
+        // 플레이어의 체력 감소 로직
         if (tree.hp > 0) {
             tree.attack(player);
         }
 
-        // 전투 종료 조건
+        // 벌목 종료 조건
         if (player.hp <= 0) {
-            console.log(chalk.red("플레이어가 패배했습니다."));
+            console.log(chalk.red("플레이어가 쓰러졌습니다."));
             break;
         } else if (tree.hp <= 0) {
-            console.log(chalk.green("몬스터를 물리쳤습니다!"));
+            console.log(chalk.green("나무가 베어졌습니다!"));
             break;
         }
     }
@@ -137,7 +144,7 @@ export async function startGame() {
 
         // 스테이지 클리어 및 게임 종료 조건
         if (player.hp <= 0) {
-            console.log(chalk.red("게임 종료: 플레이어가 패배했습니다."));
+            console.log(chalk.red("게임 종료: 플레이어가 쓰러졌습니다."));
             break;
         }
 
