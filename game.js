@@ -4,10 +4,11 @@ import readlineSync from 'readline-sync';
 class Player {
     constructor() {
         this.hp = 100;
+        this.maxHp = 100;
         //this.attackSucces = 0.7 차후 게임 난이도 쉬울 경우 기본 베기도 확률 추가
         this.attackPower = 10;
-        this.powerAttackSuccess = 0.3
-        this.healsuccess = 0.5
+        this.powerAttackSuccess = 0.3;
+        this.healsuccess = 0.5;
     }
 
     attack(tree, choice) {
@@ -33,6 +34,7 @@ class Player {
                 if (success) {
                     console.log(chalk.green("플레이어가 체력을 회복했습니다!"));
                     this.hp += 15;
+                    if (this.hp > this.maxHp) this.hp = this.maxHp;
                     console.log(`플레이어의 체력 15만큼 회복되었습니다. 플레이어의 HP: ${this.hp}`);
                 } else {
                     console.log(chalk.yellow("플레이어의 체력 회복이 실패했습니다."))
@@ -47,18 +49,23 @@ class Player {
     }
     levelUp() {
         // 레벨업 시 능력치 증가
-        this.hp += 10; // 체력 증가
+        this.maxHp += 15; // 체력 증가
+        this.resetPlayerHpAfterStage();
         this.attackPower += 5; //베기 파워 증가
         //this.attackSuccess += 0.05; //추후 베기 확률 증가 추가 가능
         this.powerAttackSuccess = Math.min(this.powerAttackSuccess + 0.05, 1)
         this.healsuccess = Math.min(this.healsuccess + 0.03, 1)
         console.log(chalk.blue(`플레이어의 능력치가 증가했습니다! HP: ${this.hp}, 벌목 파워: ${this.attackPower}`));
     }
+    resetPlayerHpAfterStage() {
+        this.hp = this.maxHp;
+    }
 }
 
 class Tree {
     constructor() {
         this.hp = 100;
+        this.maxHp = 100;
         this.attackPower = 5
     }
 
@@ -77,11 +84,15 @@ class Tree {
                 break;
         }
     }
-    levelUp(stage) {
+    levelUp() {
         // 스테이지 클리어 시 나무의 크기 증가
-        this.hp += (20 + stage * 5);
-        this.attackPower += (5 + stage);
+        this.maxHp += 20;
+        this.attackPower += 5;
+        this.resetTreeHpAfterStage();
         console.log(chalk.red(`나무의 크기가 증가했습니다. HP: ${this.hp}, 벌목 시 감소 HP: ${this.attackPower}`));
+    }
+    resetTreeHpAfterStage() {
+        this.hp = this.maxHp;
     }
 }
 
@@ -105,7 +116,7 @@ const battle = (stage, player, tree) => {
         logs.forEach((log) => console.log(log));
 
         console.log(
-            chalk.green(`\n1. 베기  2. 톱질하기(${player.powerAttackSuccess * 100}%)  3. 체력 회복(${player.healsuccess * 100}%)  4. 포기하기`)
+            chalk.green(`\n1. 베기  2. 톱질하기(${Math.round(player.powerAttackSuccess * 100)}%)  3. 체력 회복(${Math.round(player.healsuccess * 100)}%)  4. 포기하기`)
         );
         const choice = readlineSync.question('당신의 선택은? ');
         
@@ -132,7 +143,7 @@ const battle = (stage, player, tree) => {
             break;
         }
 
-        readlineSync.question('다음을 선택해주세요.');
+        readlineSync.question('');
     }
 
     return 'continue';
@@ -144,17 +155,18 @@ export async function startGame() {
     while (playAgain) {
         console.clear();
         const player = new Player();
+        const tree = new Tree();
         let stage = 1;
 
         while (stage <= 10) {
-            const tree = new Tree();
+            
 
             // battle 함수에서 반환값 처리
             const result = battle(stage, player, tree);
 
             if (result === 'reset') {
                 // 게임을 처음부터 다시 시작하도록 설정
-                console.clear();
+                //console.clear();
                 console.log(chalk.green("게임이 처음부터 다시 시작됩니다."));
                 break; // 처음부터 다시 시작
             }
@@ -166,6 +178,9 @@ export async function startGame() {
             }
 
             console.log(chalk.green(`스테이지 ${stage}를 클리어했습니다! 다음 스테이지로 진행합니다.`));
+            player.levelUp(); // 레벨업 및 체력 리셋
+            tree.levelUp();
+            readlineSync.question('다음을 스테이지로 넘어가주세요!');
             stage++;
         }
 
