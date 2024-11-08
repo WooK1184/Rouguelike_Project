@@ -6,14 +6,23 @@ import { getAchievements, updateAchievements } from './db.js';
 function initializeAchievements() {
     const achievements = getAchievements();
 
-    // 업적이 비어 있는 경우 기본 업적 목록 설정
+    // 업적이 비어 있는 경우 기본 업적 목록 설정;
+    const initialAchievements = [
+        { id: 1, name: '첫 게임 시작', description: '첫 번째 게임을 시작했습니다.', achieved: false },
+        { id: 2, name: '로또 당첨!', description: '게임에서 3연속 맥스데미지를 주었습니다.', achieved: false },  // 이름 변경
+        { id: 3, name: '게임 10회 플레이', description: '게임을 10번 플레이했습니다.', achieved: false }
+    ];
+
     if (achievements.length === 0) {
-        const initialAchievements = [
-            { id: 1, name: '첫 게임 시작', description: '첫 번째 게임을 시작했습니다.', achieved: false },
-            { id: 2, name: '100점 달성', description: '게임에서 100점을 달성했습니다.', achieved: false },
-            { id: 3, name: '게임 10회 플레이', description: '게임을 10번 플레이했습니다.', achieved: false }
-        ];
+        // 업적이 비어 있으면 초기 업적 목록을 설정
         updateAchievements(initialAchievements);
+    } else {
+        // 기존 업적과 비교하여 업데이트
+        const updatedAchievements = achievements.map(ach => {
+            const initial = initialAchievements.find(init => init.id === ach.id);
+            return initial ? { ...ach, ...initial } : ach;  // 초기 업적 정보로 덮어씌움
+        });
+        updateAchievements(updatedAchievements);
     }
 }
 
@@ -28,9 +37,9 @@ function checkAchievements(gameData) {
     }
 
     // 100점 이상 달성 업적 확인
-    if (!achievements[1].achieved && gameData.score >= 100) {
+    if (!achievements[1].achieved && gameData.maxDamageHitCount >= 3) {
         updateAchievements(2);
-        console.log(chalk.green("축하합니다! '100점 달성' 업적을 달성했습니다."));
+        console.log(chalk.green("축하합니다! '로또 당첨!' 업적을 달성했습니다."));
     }
 
     // 10회 플레이 업적 확인
