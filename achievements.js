@@ -6,7 +6,7 @@ import { getAchievements, updateAchievements } from './db.js';
 function initializeAchievements() {
     const achievements = getAchievements();
 
-    // 업적이 비어 있는 경우 기본 업적 목록 설정;
+    // 업적이 비어 있는 경우 기본 업적 목록 설정
     const initialAchievements = [
         { id: 1, name: '첫 게임 시작', description: '첫 번째 게임을 시작했습니다.', achieved: false },
         { id: 2, name: '로또 당첨!', description: '게임에서 3연속 맥스데미지를 주었습니다.', achieved: false },  // 이름 변경
