@@ -15,7 +15,7 @@ const db = low(adapter);
 
 // 데이터베이스 초기화 함수
 function initializeDB() {
-    db.defaults({ achievements: [], gameData: { score: 0, startCount: 0, playCount: 0 } }).write();
+    db.defaults({ achievements: [], gameData: { maxDamageHitCount: 0, startCount: 0, playCount: 0 } }).write();
 }
 
 // 게임 데이터를 가져오는 함수
