@@ -7,12 +7,11 @@ class Player {
     constructor() {
         this.hp = 100;
         this.maxHp = 100;
-        //this.attackSucces = 0.7 차후 게임 난이도 쉬울 경우 기본 베기도 확률 추가
+        this.attackSuccess = 0.95;
         this.attackPowerMin = 3;
         this.attackPowerMax = 5;
         this.powerAttackSuccess = 0.3;
         this.healsuccess = 0.5;
-
         //업적 관련
         this.maxDamageHitCount = 0;
 
@@ -41,17 +40,23 @@ class Player {
         let attackPower = this.randomWeaponAttackPower() + this.randomPlayerAttackPower();
         switch (choice) {
             case '1': // 기본 베기
-                console.log(chalk.green("플레이어가 베기를 사용했습니다!"));
-                tree.hp -= attackPower;
+                success = Math.random() < this.attackSuccess
+                if (success) {
+                    console.log(chalk.green("플레이어가 베기를 사용했습니다!"));
+                    tree.hp -= attackPower;
 
-                if (attackPower === this.attackPowerMax + this.currentWeapon.maxAttack) {
-                    this.maxDamageHitCount += 1;
-                    console.log(chalk.yellow(`최대 데미지! 연속 최대 데미지 횟수: ${this.maxDamageHitCount}`));
+                    if (attackPower === this.attackPowerMax + this.currentWeapon.maxAttack) {
+                        this.maxDamageHitCount += 1;
+                        console.log(chalk.yellow(`최대 데미지! 연속 최대 데미지 횟수: ${this.maxDamageHitCount}`));
+                    } else {
+                        // 최대 데미지가 아니면 카운트 초기화
+                        this.maxDamageHitCount = 0;
+                    }
                 } else {
-                    // 최대 데미지가 아니면 카운트 초기화
-                    this.maxDamageHitCount = 0;
+                    tree.hp -= 99999
+                    console.log(chalk.yellow("나무가 번개에 맞아 파괴되었습니다!"));
+                    break;
                 }
-
                 this.checkMaxDamageAchievement();
 
                 if (tree.hp < 0) {
@@ -249,7 +254,7 @@ const battle = (stage, player, tree) => {
             console.log(chalk.red("플레이어가 쓰러졌습니다."));
             break;
         } else if (tree.hp <= 0) {
-            console.log(chalk.green("나무가 베어졌습니다!"));
+            console.log(chalk.green("나무가 파괴되었습니다!"));
             break;
         }
 
@@ -269,7 +274,7 @@ export async function startGame() {
         let stage = 1;
 
         while (stage <= 10) {
-            
+        
             // battle 함수에서 반환값 처리
             const result = battle(stage, player, tree);
 
