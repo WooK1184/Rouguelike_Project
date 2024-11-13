@@ -64,6 +64,7 @@ export function getInventory() {
     return db.get('inventory').value(); 
 }
 
+
 function displayInventory() {
     const inventory = getInventory();
     console.clear();

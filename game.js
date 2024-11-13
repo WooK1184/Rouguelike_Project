@@ -126,6 +126,7 @@ class Player {
             console.log(chalk.red("이미 모든 무기를 보유중입니다."))
         }
     }
+    
     async chooseWeapon() {
         const inventory = await getInventory();
         console.log(chalk.bgBlue("\n=== 인벤토리 ==="));
