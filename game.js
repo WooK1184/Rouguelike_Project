@@ -2,6 +2,7 @@ import chalk from 'chalk';
 import readlineSync from 'readline-sync';
 import { displayLobby, handleUserInput } from "./server.js";
 import { weaponInventory, getInventory } from "./db.js"
+import { treeArt } from './image.js';
 
 class Player {
     constructor() {
@@ -127,7 +128,7 @@ class Player {
     }
     async chooseWeapon() {
         const inventory = await getInventory();
-        console.log(chalk.bgBlue("\n---인벤토리---"));
+        console.log(chalk.bgBlue("\n=== 인벤토리 ==="));
         inventory.forEach((weapon, index) => {
             console.log(`${index + 1}. ${weapon.name} (공격력: ${weapon.minAttack} ~ ${weapon.maxAttack})`);
         });
@@ -203,22 +204,12 @@ function displayStatus(stage, player, tree) {
         chalk.blueBright(`| 플레이어 HP: ${player.hp} `) +
         chalk.redBright(`| 나무 HP: ${tree.hp} |`)
     );
+    if (tree.hp > 0) {
+        console.log(chalk.green(treeArt[0]));
+    } else {
+        console.log(chalk.red(treeArt[1]));
+    }
     console.log(chalk.magentaBright(`=====================\n`));
-    console.log(chalk.greenBright(`
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⡠⡀⢢⢠⢀⠀⢄⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠨⢊⢎⡪⡪⡊⡎⣎⢮⢻⡢⣂⢀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⢀⢢⢫⠪⡪⡪⣪⠺⡜⡴⠥⣕⢑⠱⡕⣧⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⡠⢪⢪⢹⡪⡎⡖⢌⢪⡪⣣⣳⣳⢩⡚⠞⠇⠀⠀⠀
-⠀⠀⢀⣢⢫⣺⡸⡸⣰⣕⢕⡼⣵⢵⢝⡗⣽⢵⣻⣳⣵⡂⠀⠀⠀
-⠀⠀⠙⢸⢼⣮⡺⡕⡗⡗⡷⣽⢺⣝⣗⣽⣳⣻⡯⡟⡾⠝⠷⠀⠀
-⠀⠠⢣⢣⣣⡳⣝⡵⡵⣯⡎⣞⢾⣺⢺⣪⠯⣮⣩⢷⢢⠀⠀⣀⡀
-⠀⢀⠜⠺⡸⡪⡯⣯⣿⣳⣳⢵⣿⣺⣳⢍⢿⢽⣞⣗⣗⣽⢳⣻⠂
-⠀⠂⠁⠇⠃⢓⡯⡿⣞⠷⣯⠵⣾⣽⠪⣕⡄⠙⠪⡷⣟⣞⠆⠁⠁
-⠀⠀⠀⠀⠀⢲⢽⢽⡮⡎⠀⠑⢼⠊⢙⠦⠃⠀⠀⠘⠙⠪⠃⠀⠀
-⠀⠀⠀⠀⠀⠀⠈⠁⠀⠀⠀⠀⠸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠄⠀⠄⠠⠠⠤⠝⠆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-`))
 }
 
 const battle = (stage, player, tree) => {
