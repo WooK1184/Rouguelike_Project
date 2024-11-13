@@ -1,0 +1,41 @@
+{
+  "achievements": [
+    {
+      "id": 1,
+      "name": "첫 게임 시작",
+      "description": "첫 번째 게임을 시작했습니다.",
+      "achieved": true
+    },
+    {
+      "id": 2,
+      "name": "로또 당첨!",
+      "description": "게임에서 3연속 맥스데미지를 주었습니다.",
+      "achieved": false
+    },
+    {
+      "id": 3,
+      "name": "게임 3회 플레이",
+      "description": "게임을 3번 플레이했습니다.",
+      "achieved": true
+    }
+  ],
+  "gameData": {
+    "maxDamageHitCount": 0,
+    "startCount": 30,
+    "playCount": 21
+  },
+  "inventory": [
+    {
+      "id": "goldenAxe",
+      "name": "쇠도끼",
+      "minAttack": 8,
+      "maxAttack": 12
+    },
+    {
+      "id": "silverAxe",
+      "name": "은도끼",
+      "minAttack": 13,
+      "maxAttack": 17
+    }
+  ]
+}

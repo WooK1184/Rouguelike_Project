@@ -3,6 +3,11 @@ import low from 'lowdb';
 import FileSync from 'lowdb/adapters/FileSync.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import chalk from 'chalk';
+import readlineSync from 'readline-sync';
+import Player from './game.js'
+
+
 
 // __dirname 대체 설정
 const __filename = fileURLToPath(import.meta.url);
@@ -15,7 +20,7 @@ const db = low(adapter);
 
 // 데이터베이스 초기화 함수
 function initializeDB() {
-    db.defaults({ achievements: [], gameData: { maxDamageHitCount: 0, startCount: 0, playCount: 0 } }).write();
+    db.defaults({ achievements: [], gameData: { maxDamageHitCount: 0, startCount: 0, playCount: 0 }, inventory: [] }).write();
 }
 
 // 게임 데이터를 가져오는 함수
@@ -47,7 +52,36 @@ function updateAchievements(updatedAchievements) {
     }
 }
 
+//인벤토리에 무기 추가하는 함수
+export function weaponInventory(weapon) {
+    const haveWeapon = db.get('inventory').find({ id: weapon.id }).value();
+    if (!haveWeapon) {
+        db.get('inventory').push(weapon).write();
+    }
+}
+
+export function getInventory() {
+    return db.get('inventory').value(); 
+}
+
+function displayInventory() {
+    const inventory = getInventory();
+    console.clear();
+    console.log(chalk.blue('=== 인벤토리 ==='));
+    inventory.forEach((weapon, index) => {
+        console.log(`${index + 1}. ${weapon.name} (공격력: ${weapon.minAttack} ~ ${weapon.maxAttack})`);
+    });
+    const choice = readlineSync.questionInt("\n장착할 무기를 선택하세요: ") - 1;
+
+    if (choice >= 0 && choice < inventory.length) {
+        Player.currentWeapon = inventory[choice];
+        console.log(chalk.green(`${Player.currentWeapon.name}을 장착했습니다.`));
+    } else {
+        console.log("잘못된 선택입니다.")
+    }
+}
+
 // 데이터베이스 초기화 실행
 initializeDB();
 
-export { getGameData, updateGameData, getAchievements, updateAchievements };
+export { getGameData, updateGameData, getAchievements, updateAchievements, displayInventory};

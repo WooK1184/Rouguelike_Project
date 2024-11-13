@@ -1,6 +1,7 @@
 // achievements.js
 import chalk from 'chalk';
-import { getAchievements, updateAchievements } from './db.js';
+import { getAchievements, getInventory, updateAchievements, weaponInventory } from './db.js';
+import Player from './game.js';
 
 // 초기 업적 설정 함수
 function initializeAchievements() {
@@ -10,7 +11,7 @@ function initializeAchievements() {
     const initialAchievements = [
         { id: 1, name: '첫 게임 시작', description: '첫 번째 게임을 시작했습니다.', achieved: false },
         { id: 2, name: '로또 당첨!', description: '게임에서 3연속 맥스데미지를 주었습니다.', achieved: false },  // 이름 변경
-        { id: 3, name: '게임 10회 플레이', description: '게임을 10번 플레이했습니다.', achieved: false }
+        { id: 3, name: '게임 3회 플레이', description: '게임을 3번 플레이했습니다.', achieved: false }
     ];
 
     if (achievements.length === 0) {
@@ -34,18 +35,27 @@ function checkAchievements(gameData) {
     if (!achievements[0].achieved && gameData.startCount >= 1) {
         updateAchievements(1);
         console.log(chalk.green("축하합니다! '첫 게임 시작' 업적을 달성했습니다."));
+
+        const goldenAxe = { id: 'goldenAxe', name: '쇠도끼', minAttack: 8, maxAttack: 12 };
+        weaponInventory(goldenAxe);
     }
 
-    // 100점 이상 달성 업적 확인
+    // 맥스데이지 3회 달성 업적 확인
     if (!achievements[1].achieved && gameData.maxDamageHitCount >= 3) {
         updateAchievements(2);
-        console.log(chalk.green("축하합니다! '로또 당첨!' 업적을 달성했습니다."));
+        console.log(chalk.green("축하합니다! '로또 당첨!' 업적을 달성했습니다. 금도끼를 얻었습니다!"));
+
+        const goldenAxe = { id: 'goldenAxe', name: '금도끼', minAttack: 18, maxAttack: 22 };
+        weaponInventory(goldenAxe);
     }
 
-    // 10회 플레이 업적 확인
-    if (!achievements[2].achieved && gameData.playCount >= 10) {
+    // 3회 플레이 업적 확인
+    if (!achievements[2].achieved && gameData.playCount >= 3) {
         updateAchievements(3);
-        console.log(chalk.green("축하합니다! '게임 10회 플레이' 업적을 달성했습니다."));
+        console.log(chalk.green("축하합니다! '게임 3회 플레이' 업적을 달성했습니다. 은도끼를 얻었습니다!"));
+        
+        const silverAxe = { id: 'silverAxe', name: '은도끼', minAttack: 13, maxAttack: 17 };
+        weaponInventory(silverAxe)
     }
 }
 

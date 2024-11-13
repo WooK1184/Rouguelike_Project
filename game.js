@@ -1,22 +1,36 @@
 import chalk from 'chalk';
 import readlineSync from 'readline-sync';
 import { displayLobby, handleUserInput } from "./server.js";
+import { weaponInventory, getInventory } from "./db.js"
 
 class Player {
     constructor() {
         this.hp = 100;
         this.maxHp = 100;
         //this.attackSucces = 0.7 차후 게임 난이도 쉬울 경우 기본 베기도 확률 추가
-        this.attackPowerMin = 8;
-        this.attackPowerMax = 12;
+        this.attackPowerMin = 3;
+        this.attackPowerMax = 5;
         this.powerAttackSuccess = 0.3;
         this.healsuccess = 0.5;
 
         //업적 관련
         this.maxDamageHitCount = 0;
+
+        //무기 시스템
+        this.weapons = [
+            { name: '쇠도끼', minAttack: 8, maxAttack: 12 },
+            { name: "은도끼", minAttack: 13, maxAttack: 17 },
+            { name: "금도끼", minAttack: 18, maxAttack: 22 }
+        ];
+        this.currentWeapon = this.weapons[0];
     }
 
-    randomAttackPower() {
+    randomWeaponAttackPower() {
+        // 최소와 최대 공격력 사이의 랜덤 값 반환
+        return Math.floor(
+            Math.random() * (this.currentWeapon.maxAttack - this.currentWeapon.minAttack + 1) + this.currentWeapon.minAttack);
+    }
+    randomPlayerAttackPower() {
         // 최소와 최대 공격력 사이의 랜덤 값 반환
         return Math.floor(
             Math.random() * (this.attackPowerMax - this.attackPowerMin + 1) + this.attackPowerMin);
@@ -24,13 +38,13 @@ class Player {
 
     attack(tree, choice) {
         let success = false;
-        let attackPower = this.randomAttackPower();
+        let attackPower = this.randomWeaponAttackPower() + this.randomPlayerAttackPower();
         switch (choice) {
             case '1': // 기본 베기
                 console.log(chalk.green("플레이어가 베기를 사용했습니다!"));
                 tree.hp -= attackPower;
 
-                if (attackPower === this.attackPowerMax) {
+                if (attackPower === this.attackPowerMax + this.currentWeapon.maxAttack) {
                     this.maxDamageHitCount += 1;
                     console.log(chalk.yellow(`최대 데미지! 연속 최대 데미지 횟수: ${this.maxDamageHitCount}`));
                 } else {
@@ -51,7 +65,7 @@ class Player {
                     console.log(chalk.green("플레이어가 톱질을 성공했습니다!"));
                     tree.hp -= attackPower * 2
 
-                    if (attackPower * 2 === this.attackPowerMax * 2) {
+                    if (attackPower * 2 === (this.attackPowerMax +this.currentWeapon.maxAttack) * 2) {
                         this.maxDamageHitCount += 1;
                         console.log(chalk.yellow(`최대 데미지! 연속 최대 데미지 횟수: ${this.maxDamageHitCount}`));
                     } else {
@@ -92,6 +106,33 @@ class Player {
         if (this.maxDamageHitCount === 3) {
             console.log(chalk.green("축하합니다! 최대 데미지를 3회 연속 달성하여 업적을 달성했습니다!"));
             this.maxDamageHitCount = 0; // 업적 달성 후 카운트 초기화
+            this.giveNewWeapon();
+        }
+    }
+    giveNewWeapon() {
+        const currentWeaponIndex = this.weapons.indexOf(this.currentWeapon);
+        if (currentWeaponIndex < this.weapons.length - 1) {
+            const newWeapon = this.weapons[currentWeaponIndex + 1];
+            this.currentWeapon = newWeapon;
+            weaponInventory(newWeapon);
+            console.log(chalk.bgGreen(`새로운 무기 ${newWeapon.name}을 획득하셨습니다.`))
+        } else {
+            console.log(chalk.red("이미 모든 무기를 보유중입니다."))
+        }
+    }
+    async chooseWeapon() {
+        const inventory = await getInventory();
+        console.log(chalk.bgBlue("\n---인벤토리---"));
+        inventory.forEach((weapon, index) => {
+            console.log(`${index + 1}. ${weapon.name} (공격력: ${weapon.minAttack} ~ ${weapon.maxAttack})`);
+        });
+        const choice = readlineSync.questionInt("\n장착할 무기를 선택하세요: ") - 1;
+
+        if (choice >= 0 && choice < inventory.length) {
+            this.currentWeapon = inventory[choice];
+            console.log(chalk.green(`${this.currentWeapon.name}을 장착했습니다.`));
+        } else {
+            console.log("잘못된 선택입니다.")
         }
     }
 
@@ -113,6 +154,8 @@ class Player {
         this.attackPowerMax += 5
     }
 }
+
+export default Player;
 
 class Tree {
     constructor() {
@@ -156,6 +199,21 @@ function displayStatus(stage, player, tree) {
         chalk.redBright(`| 나무 HP: ${tree.hp} |`)
     );
     console.log(chalk.magentaBright(`=====================\n`));
+    console.log(chalk.greenBright(`
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⡠⡀⢢⢠⢀⠀⢄⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠨⢊⢎⡪⡪⡊⡎⣎⢮⢻⡢⣂⢀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⢀⢢⢫⠪⡪⡪⣪⠺⡜⡴⠥⣕⢑⠱⡕⣧⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⡠⢪⢪⢹⡪⡎⡖⢌⢪⡪⣣⣳⣳⢩⡚⠞⠇⠀⠀⠀
+⠀⠀⢀⣢⢫⣺⡸⡸⣰⣕⢕⡼⣵⢵⢝⡗⣽⢵⣻⣳⣵⡂⠀⠀⠀
+⠀⠀⠙⢸⢼⣮⡺⡕⡗⡗⡷⣽⢺⣝⣗⣽⣳⣻⡯⡟⡾⠝⠷⠀⠀
+⠀⠠⢣⢣⣣⡳⣝⡵⡵⣯⡎⣞⢾⣺⢺⣪⠯⣮⣩⢷⢢⠀⠀⣀⡀
+⠀⢀⠜⠺⡸⡪⡯⣯⣿⣳⣳⢵⣿⣺⣳⢍⢿⢽⣞⣗⣗⣽⢳⣻⠂
+⠀⠂⠁⠇⠃⢓⡯⡿⣞⠷⣯⠵⣾⣽⠪⣕⡄⠙⠪⡷⣟⣞⠆⠁⠁
+⠀⠀⠀⠀⠀⢲⢽⢽⡮⡎⠀⠑⢼⠊⢙⠦⠃⠀⠀⠘⠙⠪⠃⠀⠀
+⠀⠀⠀⠀⠀⠀⠈⠁⠀⠀⠀⠀⠸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠄⠀⠄⠠⠠⠤⠝⠆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+`))
 }
 
 const battle = (stage, player, tree) => {
@@ -229,7 +287,11 @@ export async function startGame() {
                 break;
             }
 
-            console.log(chalk.green(`스테이지 ${stage}를 클리어했습니다! 다음 스테이지로 진행합니다.`));
+            console.log(chalk.green(`스테이지 ${stage}를 클리어했습니다!`));
+            const choice = readlineSync.question("무기를 변경하시겠습니까? (y/n): ");
+            if (choice.toLowerCase() === 'y') {
+                await player.chooseWeapon();  // 무기 선택 함수 호출
+            }
             player.levelUp(); // 레벨업 및 체력 리셋
             tree.levelUp();
             readlineSync.question('다음을 스테이지로 넘어가주세요!');
