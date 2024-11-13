@@ -270,7 +270,6 @@ export async function startGame() {
 
         while (stage <= 10) {
             
-
             // battle 함수에서 반환값 처리
             const result = battle(stage, player, tree);
 
