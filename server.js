@@ -28,7 +28,6 @@ export function displayLobby() {
         )
     );
 
-    
     // 상단 경계선
     const line = chalk.magentaBright('='.repeat(50));
     console.log(line);
