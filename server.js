@@ -3,7 +3,7 @@ import figlet from 'figlet';
 import readlineSync from 'readline-sync';
 import { startGame } from "./game.js";
 import { displayAchievements, checkAchievements } from "./achievements.js";
-import { getGameData, updateGameData } from './db.js';
+import { getGameData, updateGameData, displayInventory } from './db.js';
 
 // 게임 데이터를 초기화
 let gameData = {
@@ -19,8 +19,8 @@ export function displayLobby() {
 
     // 타이틀 텍스트
     console.log(
-        chalk.cyan(
-            figlet.textSync('RL- Javascript', {
+        chalk.white(
+            figlet.textSync('Tree Slayer', {
                 font: 'Standard',
                 horizontalLayout: 'default',
                 verticalLayout: 'default'
@@ -33,7 +33,7 @@ export function displayLobby() {
     console.log(line);
 
     // 게임 이름
-    console.log(chalk.yellowBright.bold('CLI 게임에 오신것을 환영합니다!'));
+    console.log(chalk.yellowBright.bold('Tree Slayer!'));
 
     // 설명 텍스트
     console.log(chalk.green('옵션을 선택해주세요.'));
@@ -42,7 +42,7 @@ export function displayLobby() {
     // 옵션들
     console.log(chalk.blue('1.') + chalk.white(' 새로운 게임 시작'));
     console.log(chalk.blue('2.') + chalk.white(' 업적 확인하기'));
-    console.log(chalk.blue('3.') + chalk.white(' 옵션'));
+    console.log(chalk.blue('3.') + chalk.white(' 인벤토리'));
     console.log(chalk.blue('4.') + chalk.white(' 종료'));
 
     // 하단 경계선
@@ -83,7 +83,7 @@ export async function handleUserInput() {
             break;
 
         case '3':
-            console.log(chalk.blue('옵션 메뉴는 아직 구현되지 않았습니다.'));
+            displayInventory();
             readlineSync.question('\n처음으로 돌아가려면 Enter 키를 누르세요.');
             displayLobby();
             await handleUserInput();
