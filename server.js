@@ -20,7 +20,7 @@ export function displayLobby() {
     // 타이틀 텍스트
     console.log(
         chalk.cyan(
-            figlet.textSync('RL- Javascript', {
+            figlet.textSync('Tree Slayer', {
                 font: 'Standard',
                 horizontalLayout: 'default',
                 verticalLayout: 'default'

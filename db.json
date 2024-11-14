@@ -4,7 +4,7 @@
       "id": 1,
       "name": "첫 게임 시작",
       "description": "첫 번째 게임을 시작했습니다.",
-      "achieved": true
+      "achieved": false
     },
     {
       "id": 2,
@@ -16,13 +16,13 @@
       "id": 3,
       "name": "게임 3회 플레이",
       "description": "게임을 3번 플레이했습니다.",
-      "achieved": true
+      "achieved": false
     }
   ],
   "gameData": {
     "maxDamageHitCount": 0,
-    "startCount": 39,
-    "playCount": 30
+    "startCount": 40,
+    "playCount": 31
   },
   "inventory": [
     {
