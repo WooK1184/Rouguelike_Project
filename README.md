@@ -36,7 +36,7 @@ $ cd Rouguelike_Project
 #### Run Method
 ```
 $ npm install
-$ npm install lowdb
+$ npm install lowdb@2.1.0
 $ node server.js 
 ```
 ---
