@@ -1,7 +1,6 @@
 // achievements.js
 import chalk from 'chalk';
-import { getAchievements, getInventory, updateAchievements, weaponInventory } from './db.js';
-import Player from './game.js';
+import { getAchievements, updateAchievements, weaponInventory } from './db.js';
 
 // 초기 업적 설정 함수
 function initializeAchievements() {

@@ -126,7 +126,7 @@ class Player {
             console.log(chalk.red("이미 모든 무기를 보유중입니다."))
         }
     }
-    
+
     async chooseWeapon() {
         const inventory = await getInventory();
         console.log(chalk.bgBlue("\n=== 인벤토리 ==="));
@@ -161,8 +161,6 @@ class Player {
         this.attackPowerMax += 5
     }
 }
-
-export default Player;
 
 class Tree {
     constructor() {
@@ -267,7 +265,6 @@ export async function startGame() {
 
         while (stage <= 10) {
         
-            // battle 함수에서 반환값 처리
             const result = battle(stage, player, tree);
 
             if (result === 'reset1') {
@@ -305,3 +302,5 @@ export async function startGame() {
         }
     }
 }
+
+export default Player;
